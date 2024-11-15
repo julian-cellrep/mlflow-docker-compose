@@ -3,7 +3,7 @@ version: '3.7'
 services:
     minio:
         restart: always
-        image: minio/minio@sha256:2c8ac2a6255a2fa7b73a0a3647314c07121432b8ca1ce4ed8bfe31ca8495d7f7
+        image: minio/minio:latest
         container_name: mlflow_s3
         ports:
             - "9000:9000"
@@ -16,7 +16,7 @@ services:
             - minio_data:/data
 
     mc:
-        image: minio/mc@sha256:3adae97df95c66b301b25ca7b38a9d7cfbd93b8f0652687331d552cd046dbfc1
+        image: minio/mc:latest
         depends_on:
             - minio
         container_name: mc
@@ -34,7 +34,7 @@ services:
 
     db:
         restart: always
-        image: mysql/mysql-server@sha256:5b40d96b11333570143d98d3a74100fefadb9abb17b27a95dbc9ad33544ec142
+        image: mysql/mysql-server:latest
         container_name: mlflow_db
         ports:
             - "3306:3306"
@@ -60,7 +60,7 @@ services:
             - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
             - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
             - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-        command: mlflow server --backend-store-uri mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE} --default-artifact-root s3://mlflow/ --host 0.0.0.0
+        command: mlflow server --app-name basic-auth --backend-store-uri mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE} --default-artifact-root ${MLFLOW_ARTIFACTS_PATH} --host 0.0.0.0
 
 volumes:
     dbdata:
